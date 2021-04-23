@@ -73,8 +73,8 @@ class Pokemon:
         # Continue while pokemon still have health
         while (self.bars > 0) and (contrincant.bars > 0):
             # Print the health of each pokemon
-            print(f"\n{self.name}\t\tHLTH\t{self.health}")
-            print(f"{contrincant.name}\t\tHLTH\t{contrincant.health}\n")
+            print(f"\n{self.name}\t\tHEALTH\t{self.health}")
+            print(f"{contrincant.name}\t\tHEALTH\t{contrincant.health}\n")
 
             print(f"Go {self.name}!")
             for i, x in enumerate(self.moves):
@@ -135,6 +135,7 @@ class Pokemon:
 
 
 if __name__ == '__main__':
+
     # Create Pokemon
     Charizard = Pokemon('Charizard', 'Fire', ['Flamethrower', 'Fly', 'Blast Burn', 'Fire Punch'],
                         {'ATTACK': 12, 'DEFENSE': 8})
@@ -156,4 +157,4 @@ if __name__ == '__main__':
     Ivysaur = Pokemon('Ivysaur\t', 'Grass', ['Vine Wip', 'Razor Leaf', 'Bullet Seed', 'Leech Seed'],
                       {'ATTACK': 4, 'DEFENSE': 6})
 
-    Charizard.fight(Blastoise)  # Get them to fight
+    Charizard.fight(Blastoise)
