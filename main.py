@@ -1,4 +1,7 @@
-from pokemon.pokemon import Pokemon
+from FightEngine import fight
+from pokemon.Pokemon import Pokemon
+
+
 
 if __name__ == '__main__':
 
@@ -23,4 +26,4 @@ if __name__ == '__main__':
     Ivysaur = Pokemon('Ivysaur\t', 'Grass', ['Vine Wip', 'Razor Leaf', 'Bullet Seed', 'Leech Seed'],
                       {'ATTACK': 4, 'DEFENSE': 6})
 
-    Charizard.fight(Blastoise)
+    fight(Charizard, Blastoise)
