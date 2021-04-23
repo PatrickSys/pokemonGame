@@ -3,21 +3,20 @@ import time
 
 import numpy as np
 
+def ident(tabs):
+    identation = ""
+    for i in range(tabs):
+        identation  = identation +'\t'
+    return identation
 
-def print_header(self, contrincant):
-    # Print fight information
-    print("-----POKEMON BATTLE-----")
-    print(f"\n{self.name}")
-    print("TYPE/", self.types)
-    print("ATTACK/", self.attack)
-    print("DEFENSE/", self.defense)
-    print("LVL/", 3 * (1 + np.mean([self.attack, self.defense])))
-    print("\nVS")
-    print(f"\n{contrincant.name}")
-    print("TYPE/", contrincant.types)
-    print("ATTACK/", contrincant.attack)
-    print("DEFENSE/", contrincant.defense)
-    print("LVL/", 3 * (1 + np.mean([contrincant.attack, contrincant.defense])))
+# Print fight information
+def print_header(pokemon, contrincant):
+    print("----------------POKEMON BATTLE----------------")
+    print(f"\n ",ident(2),pokemon.name,ident(1), 'VS',ident(1),contrincant.name)
+    print(f"TYPE/   ", pokemon.types, ident(4), contrincant.types)
+    print(f"ATTACK/ ", pokemon.attack, ident(4), contrincant.attack)
+    print(f"DEFENSE/", pokemon.defense, ident(5), contrincant.defense)
+    print(f"LVL/  ",ident(1),3 * (1 + np.mean([pokemon.attack, pokemon.defense])),ident(4),3 * (1 + np.mean([contrincant.attack, contrincant.defense])))
     time.sleep(2)
 
 
@@ -29,8 +28,9 @@ def delay_print(s):
         time.sleep(0.05)
 
 
+# Allow two pokemon to fight each other
+
 def fight(pokemon, contrincant):
-    # Allow two pokemon to fight each other
 
     print_header(pokemon, contrincant)
 
@@ -85,8 +85,8 @@ def fight(pokemon, contrincant):
             contrincant.health += "="
 
         time.sleep(1)
-        print(f"\n{pokemon.name}\t\tHLTH\t{pokemon.health}")
-        print(f"{contrincant.name}\t\tHLTH\t{contrincant.health}\n")
+        print(f"\n{pokemon.name}\t\tPS\t{pokemon.health})")
+        print(f"{contrincant.name}\t\tPS\t{contrincant.health})\n")
         time.sleep(.5)
 
         # Check to see if Pokemon fainted
