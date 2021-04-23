@@ -1,7 +1,8 @@
 import sys
 import time
-
 import numpy as np
+from multipledispatch import dispatch
+
 
 def ident(tabs):
     identation = ""
@@ -11,13 +12,32 @@ def ident(tabs):
 
 # Print fight information
 def print_header(pokemon, contrincant):
-    print("----------------POKEMON BATTLE----------------")
-    print(f"\n ",ident(2),pokemon.name,ident(1), 'VS',ident(1),contrincant.name)
-    print(f"TYPE/   ", pokemon.types, ident(4), contrincant.types)
-    print(f"ATTACK/ ", pokemon.attack, ident(4), contrincant.attack)
-    print(f"DEFENSE/", pokemon.defense, ident(5), contrincant.defense)
-    print(f"LVL/  ",ident(1),3 * (1 + np.mean([pokemon.attack, pokemon.defense])),ident(4),3 * (1 + np.mean([contrincant.attack, contrincant.defense])))
+    print(f"{ident(2)}-----------------POKEMON FIGHT!-----------------")
+    print_versus(pokemon,contrincant)
+    print_stat("TYPE/",pokemon.types, contrincant.types)
+    print_stat("ATTACK/",pokemon.attack,pokemon.defense)
+    print_stat("DEFENSE/", pokemon.defense, contrincant.defense)
+    print_stat("LVL/  ",3 * (1 + np.mean([pokemon.attack, pokemon.defense])),3 * (1 + np.mean([contrincant.attack, contrincant.defense])))
     time.sleep(2)
+
+
+@dispatch(str,str,str)
+def print_centered(message, arg1, arg2):
+    print(f"{message}\t{arg1}\t{arg2}".center(80))
+
+@dispatch(str)
+def print_centered(message):
+    print(f"{message}".center(90))
+
+def print_versus(pokemon, contrincant):
+    print(f"{ident(4)}{pokemon.name}{ident(2)}VS{ident(2)}{contrincant.name}")
+
+def print_stat(stat_name, pokemon_stat, contrincant_stat):
+    print(f"{stat_name}{ident(3)}{pokemon_stat}{ident(5)}{contrincant_stat}")
+
+
+
+
 
 
 # Delay printing
@@ -50,7 +70,7 @@ def fight(pokemon, contrincant):
                 pokemon.attack /= 2
                 pokemon.defense /= 2
                 string_1_attack = '\nIts not very effective...'
-                string_2_attack = '\nIts super effective!'
+                string_2_attack = '\nIts super effective!\n'
 
             # Pokemon2 is WEAK
             if contrincant.types == version[(i + 2) % 3]:
