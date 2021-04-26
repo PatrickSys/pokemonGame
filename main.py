@@ -1,14 +1,11 @@
 from FightEngine import fight
-from pokemon.Pokemon import Pokemon
-
-
+from pokemon.Pokemon import create_pokemon
 
 if __name__ == '__main__':
 
-    # Create Pokemon
-    Charizard = Pokemon('Chard', 'Fire', ['Flamethrower', 'Fly', 'Blast Burn', 'Fire Punch'],
-                         12,  8)
-    Blastoise = Pokemon('Blastoise', 'Water', ['Water Gun', 'Bubblebeam', 'Hydro Pump', 'Surf'],
-                        10, 10)
+    pokemon = create_pokemon()
+    contrincant = create_pokemon()
 
-    fight(Charizard, Blastoise)
+    fight(pokemon, contrincant)
+
+

@@ -1,7 +1,8 @@
 import sys
 import time
 import numpy as np
-from multipledispatch import dispatch
+
+
 
 class bcolors:
     HEADER = '\033[95m'
@@ -23,33 +24,25 @@ def ident(tabs):
 
 # Print fight information
 def print_header(pokemon, contrincant):
-    print(bcolors.HEADER + "---------------------POKEMON FIGHT!---------------------" + bcolors.ENDC)
+    print(bcolors.HEADER + "------------------------------------------POKEMON FIGHT!------------------------------------------\n" + bcolors.ENDC)
     print_versus(pokemon, contrincant)
-    print_stat("TYPE/", pokemon.types, contrincant.types)
-    print_stat("ATTACK/", pokemon.attack, f"\t{contrincant.attack}")
-    print_stat("DEFENSE", pokemon.defense, f"\t{contrincant.defense}")
-    print_stat("LVL/  ", 3 * (1 + np.mean([pokemon.attack, pokemon.defense])),
-               3 * (1 + np.mean([contrincant.attack, contrincant.defense])))
+    print_types(pokemon, contrincant)
+    print_stat("ATTACK/", pokemon.attack, f"{ident(4)}{contrincant.attack}")
+    print_stat("DEFENSE/", pokemon.defense, f"{ident(4)}{contrincant.defense}")
+    print_stat("SPEED/\t", pokemon.speed, f"{ident(4)}{contrincant.speed}")
     time.sleep(.2)
 
 
-@dispatch(str, str, str)
-def print_centered(message, arg1, arg2):
-    print(f"{message}\t{arg1}\t{arg2}".center(80))
-
-
-@dispatch(str)
-def print_centered(message):
-    print(f"{message}".center(90))
-
 
 def print_versus(pokemon, contrincant):
-    print(bcolors.WARNING + f"{ident(4)}{pokemon.name}{ident(2)}" + bcolors.ENDC + bcolors.FAIL + "VS" + bcolors.WARNING +
-          f"{ident(2)}{contrincant.name}" + bcolors.ENDC)
+    print(bcolors.WARNING + f"{ident(6)} {pokemon.name} {ident(4)}" + bcolors.ENDC + bcolors.FAIL + "VS" + bcolors.WARNING +
+          f"{ident(3)} {contrincant.name}" + bcolors.ENDC)
 
+def print_types(pokemon, contrincant):
+    print(f"{bcolors.OKCYAN} TYPE/ {bcolors.ENDC} {ident(4)}", ', '.join(pokemon.types), ident(6),', '.join(contrincant.types))
 
 def print_stat(stat_name, pokemon_stat, contrincant_stat):
-    print(bcolors.OKCYAN + f"{stat_name}"+ bcolors.ENDC + f"{ident(3)}{pokemon_stat}{ident(5)}{contrincant_stat}")
+    print(f"{bcolors.OKCYAN} {stat_name} {bcolors.ENDC} {ident(4)}", pokemon_stat, ident(4),' ', contrincant_stat)
 
 
 # Delay printing
@@ -71,7 +64,8 @@ def print_moves(pokemon):
     print(f'[{pokemon.moves[2]}]\t[{pokemon.moves[3]}]\n')
 
 
-def reduce_health(pokemon, attack):
+# TODO Determine damage mechanics
+def determine_damage(pokemon, attack):
 
     damage=""
 
@@ -102,7 +96,7 @@ def fight(pokemon, contrincant):
         time.sleep(.1)
 
         # Determine damage
-        reduce_health(contrincant, pokemon.attack)
+        determine_damage(contrincant, pokemon.attack)
 
 
         time.sleep(.1)
@@ -123,7 +117,7 @@ def fight(pokemon, contrincant):
         time.sleep(.1)
 
         # Determine damage
-        reduce_health(pokemon, contrincant.attack)
+        determine_damage(pokemon, contrincant.attack)
 
 
         time.sleep(.1)
