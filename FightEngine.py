@@ -72,14 +72,15 @@ def print_moves(pokemon):
 
 
 def reduce_health(pokemon, attack):
+
     damage=""
 
     for i in range (attack):
         damage += '='
 
-    pokemon.health -= damage
-    pokemon.bars -= pokemon.attack
 
+    pokemon.bars -= pokemon.attack
+    pokemon.health = pokemon.set_health()
 
 # Allow two pokemon to fight each other
 
@@ -101,7 +102,7 @@ def fight(pokemon, contrincant):
         time.sleep(.1)
 
         # Determine damage
-        reduce_health(pokemon, contrincant.attack)
+        reduce_health(contrincant, pokemon.attack)
 
 
         time.sleep(.1)
@@ -122,7 +123,7 @@ def fight(pokemon, contrincant):
         time.sleep(.1)
 
         # Determine damage
-        reduce_health(contrincant, pokemon.attack)
+        reduce_health(pokemon, contrincant.attack)
 
 
         time.sleep(.1)
