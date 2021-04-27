@@ -1,10 +1,11 @@
 import random
-
 import requests
 import json
 
-
 # Create the class
+from pokemon.moves import Moves
+
+
 class Pokemon:
 
     def set_health(self):
@@ -26,10 +27,7 @@ class Pokemon:
         self.speed = speed
 
 
-
-
 def create_pokemon():
-
     # Ask the pokemon to be made
     pokemon_required = str(input("Which pokemon is selected?\t")).lower()
 
@@ -45,16 +43,17 @@ def create_pokemon():
     types = []
 
     for i in range(len(pokemon['types'])):
-       types.append(pokemon['types'][i]['type']['name'])
-
+        types.append(pokemon['types'][i]['type']['name'])
 
     # Array of moves, gets 4 random moves on the pokemon selected
 
     moves = []
     for i in range(4):
-        for i in range(len(pokemon['moves'])):
-            if random.randrange(100) > 90 and pokemon['moves'][i]['move']['name'] not in moves:
-                moves.append(pokemon['moves'][i]['move']['name'])
+        for k in range(len(pokemon['moves'])):
+            rand = random.randrange(len(pokemon['moves']))
+            if pokemon['moves'][rand]['move']['name'] not in moves:
+                new_move = Moves.create_mov(pokemon, rand)
+                moves.append(new_move)
                 break
 
     # stat 0 hp 1 attack 2 defense 5 speed
@@ -64,9 +63,4 @@ def create_pokemon():
     defense = pokemon['stats'][2]['base_stat']
     speed = pokemon['stats'][5]['base_stat']
 
-
     return Pokemon(name, types, moves, hp, attack, defense, speed)
-
-
-
-

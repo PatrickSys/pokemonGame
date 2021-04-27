@@ -60,8 +60,8 @@ def print_health(pokemon, contrincant):
 
 def print_moves(pokemon):
     print(f"Go {pokemon.name}!")
-    print(f'\n[{pokemon.moves[0]}]\t[{pokemon.moves[1]}]')
-    print(f'[{pokemon.moves[2]}]\t[{pokemon.moves[3]}]\n')
+    print(f'\n[{pokemon.moves[0].getname()}]\t[{pokemon.moves[1].getname()}]')
+    print(f'[{pokemon.moves[2].getname()}]\t[{pokemon.moves[3].getname()}]\n')
 
 
 # TODO Determine damage mechanics
@@ -92,7 +92,7 @@ def fight(pokemon, contrincant):
         print_moves(pokemon)
 
         index = int(input('Pick a move: '))
-        delay_print(f"\n{pokemon.name} used {pokemon.moves[index - 1]}!")
+        delay_print(f"\n{pokemon.name} used {pokemon.moves[index - 1].getname()}!")
         time.sleep(.1)
 
         # Determine damage
@@ -113,7 +113,7 @@ def fight(pokemon, contrincant):
         print_moves(contrincant)
 
         index = int(input('Pick a move: '))
-        delay_print(f"\n{contrincant.name} used {contrincant.moves[index - 1]}!")
+        delay_print(f"\n{contrincant.name} used {contrincant.moves[index - 1].getname()}!")
         time.sleep(.1)
 
         # Determine damage
