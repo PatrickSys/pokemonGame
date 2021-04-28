@@ -26,6 +26,29 @@ class Pokemon:
         self.health = self.set_health()
         self.speed = speed
 
+    def get_name(self):
+        return self.name
+
+    def get_hp(self):
+        return self.hp
+
+    def get_attack(self):
+        return self.attack
+
+    def get_defense(self):
+        return self.defense
+
+    def do_attack(self, move, contrincat):
+        miss_chance = random.randint(100)
+        crit_chance = random.randint(100)
+        crit = 1
+        if miss_chance <= move.get_accuracy():
+            if crit_chance <= 6:
+                crit = 2
+            return crit * (contrincat.get_hp() - (self.get_attack() - move.get_power() + contrincat.get_defense()/2) / 20)
+        else:
+            return self.get_name() + "miss the attack"
+
 
 def create_pokemon():
     # Ask the pokemon to be made

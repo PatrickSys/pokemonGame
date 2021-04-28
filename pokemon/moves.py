@@ -13,8 +13,20 @@ class Moves:
         self.pp = pp
         self.priority = priority
 
-    def getname(self):
+    def get_name(self):
         return self.name
+
+    def get_accuracy(self):
+        return self.accuracy
+
+    def get_pp(self):
+        return self.pp
+
+    def get_priority(self):
+        return self.priority
+
+    def get_power(self):
+        return self.power
 
     def create_mov(pokemon, rand):
         get_moves = requests.get(pokemon['moves'][rand]['move']['url'])

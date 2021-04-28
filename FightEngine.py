@@ -92,7 +92,7 @@ def fight(pokemon, contrincant):
         print_moves(pokemon)
 
         index = int(input('Pick a move: '))
-        delay_print(f"\n{pokemon.name} used {pokemon.moves[index - 1].getname()}!")
+        delay_print(f"\n{pokemon.name} used {pokemon.moves[index - 1].get_name()}!")
         time.sleep(.1)
 
         # Determine damage
@@ -113,7 +113,7 @@ def fight(pokemon, contrincant):
         print_moves(contrincant)
 
         index = int(input('Pick a move: '))
-        delay_print(f"\n{contrincant.name} used {contrincant.moves[index - 1].getname()}!")
+        delay_print(f"\n{contrincant.name} used {contrincant.moves[index - 1].get_name()}!")
         time.sleep(.1)
 
         # Determine damage
