@@ -32,9 +32,13 @@ class Moves:
         get_moves = requests.get(pokemon['moves'][rand]['move']['url'])
         mov = json.loads(get_moves.text)
         accuracy = mov['accuracy']
+        if accuracy is None:
+            accuracy = 100
         mov_name = pokemon['moves'][rand]['move']['name']
         category = mov['meta']['category']['name']
         mov_power = mov['power']
+        if mov_power is None:
+            mov_power = 25
         mov_pp = mov['pp']
         mov_priority = mov['priority']
         return Moves(accuracy, mov_name, category, mov_power, mov_pp, mov_priority)

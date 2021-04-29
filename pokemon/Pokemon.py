@@ -1,8 +1,6 @@
 import random
 import requests
 import json
-
-# Create the class
 from pokemon.moves import Moves
 
 
@@ -10,7 +8,7 @@ class Pokemon:
 
     def set_health(self):
         health = ''
-        for i in range(self.bars):
+        for i in range(int(self.bars)):
             health += '='
         return health
 
@@ -22,7 +20,7 @@ class Pokemon:
         self.hp = hp
         self.attack = attack
         self.defense = defense
-        self.bars = 20  # Amount of health bars
+        self.bars = 20.0  # Amount of health bars
         self.health = self.set_health()
         self.speed = speed
 
@@ -38,16 +36,34 @@ class Pokemon:
     def get_defense(self):
         return self.defense
 
-    def do_attack(self, move, contrincat):
-        miss_chance = random.randint(100)
-        crit_chance = random.randint(100)
+
+
+
+    def do_attack(self, move, contrincant):
+        miss_chance = random.randint(0, 100)
+        crit_chance = random.randint(0, 100)
         crit = 1
+
         if miss_chance <= move.get_accuracy():
             if crit_chance <= 6:
                 crit = 2
-            return crit * (contrincat.get_hp() - (self.get_attack() - move.get_power() + contrincat.get_defense()/2) / 20)
+                print("Critical Strike! ")
+
+            damage = abs(crit * (((self.attack * 5) * (move.power * 35)) - ((contrincant.hp / 8) * (contrincant.defense * 30)))) / 50250
+            print(damage, " dmg")
+            print(((crit * (((self.attack * 5) * (move.power * 35)) - ((contrincant.hp / 8) * (contrincant.defense * 30)))) / 50250), "real")
+            effect_damage(damage, contrincant)
+
         else:
             return self.get_name() + "miss the attack"
+
+
+def effect_damage(damage, contrincant):
+
+    contrincant.bars -= damage
+    contrincant.health = contrincant.set_health()
+
+
 
 
 def create_pokemon():
@@ -60,7 +76,6 @@ def create_pokemon():
 
     # Start getting wanted data
     name = pokemon['name'].capitalize()
-    print(name)
 
     # Array of types
     types = []
@@ -81,7 +96,7 @@ def create_pokemon():
 
     # stat 0 hp 1 attack 2 defense 5 speed
 
-    hp = pokemon['stats'][0]['base_stat']
+    hp = 3 * (pokemon['stats'][0]['base_stat'])
     attack = pokemon['stats'][1]['base_stat']
     defense = pokemon['stats'][2]['base_stat']
     speed = pokemon['stats'][5]['base_stat']

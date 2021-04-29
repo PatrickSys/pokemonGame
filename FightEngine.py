@@ -3,7 +3,6 @@ import time
 import numpy as np
 
 
-
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -27,6 +26,7 @@ def print_header(pokemon, contrincant):
     print(bcolors.HEADER + "------------------------------------------POKEMON FIGHT!------------------------------------------\n" + bcolors.ENDC)
     print_versus(pokemon, contrincant)
     print_types(pokemon, contrincant)
+    print_stat(f"HP/{ident(1)}", pokemon.hp, f"{ident(4)}{contrincant.hp}")
     print_stat("ATTACK/", pokemon.attack, f"{ident(4)}{contrincant.attack}")
     print_stat("DEFENSE/", pokemon.defense, f"{ident(4)}{contrincant.defense}")
     print_stat("SPEED/\t", pokemon.speed, f"{ident(4)}{contrincant.speed}")
@@ -60,24 +60,13 @@ def print_health(pokemon, contrincant):
 
 def print_moves(pokemon):
     print(f"Go {pokemon.name}!")
-    print(f'\n[{pokemon.moves[0].getname()}]\t[{pokemon.moves[1].getname()}]')
-    print(f'[{pokemon.moves[2].getname()}]\t[{pokemon.moves[3].getname()}]\n')
+    print(f'\n[{pokemon.moves[0].get_name()}]\t[{pokemon.moves[1].get_name()}]')
+    print(f'[{pokemon.moves[2].get_name()}]\t[{pokemon.moves[3].get_name()}]\n')
 
 
-# TODO Determine damage mechanics
-def determine_damage(pokemon, attack):
 
-    damage=""
-
-    for i in range (attack):
-        damage += '='
-
-
-    pokemon.bars -= pokemon.attack
-    pokemon.health = pokemon.set_health()
 
 # Allow two pokemon to fight each other
-
 def fight(pokemon, contrincant):
     print_header(pokemon, contrincant)
 
@@ -96,7 +85,7 @@ def fight(pokemon, contrincant):
         time.sleep(.1)
 
         # Determine damage
-        determine_damage(contrincant, pokemon.attack)
+        pokemon.do_attack(pokemon.moves[index-1], contrincant)
 
 
         time.sleep(.1)
@@ -117,8 +106,8 @@ def fight(pokemon, contrincant):
         time.sleep(.1)
 
         # Determine damage
-        determine_damage(pokemon, contrincant.attack)
 
+        contrincant.do_attack(contrincant.moves[index-1], pokemon)
 
         time.sleep(.1)
         print_health(pokemon, contrincant)
