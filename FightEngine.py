@@ -60,8 +60,8 @@ def print_health(pokemon, contrincant):
 
 def print_moves(pokemon):
     print(f"Go {pokemon.name}!")
-    print(f'\n[{pokemon.moves[0].get_name()}]\t[{pokemon.moves[1].get_name()}]')
-    print(f'[{pokemon.moves[2].get_name()}]\t[{pokemon.moves[3].get_name()}]\n')
+    print(f'\n[{pokemon.moves[0].get_name()}][{pokemon.moves[0].get_pp()} PP]\t[{pokemon.moves[1].get_name()}][{pokemon.moves[1].get_pp()} PP]')
+    print(f'[{pokemon.moves[2].get_name()}][{pokemon.moves[2].get_pp()} PP]\t[{pokemon.moves[3].get_name()}][{pokemon.moves[3].get_pp()} PP]\n')
 
 
 
@@ -76,9 +76,7 @@ def fight(pokemon, contrincant):
 
     while (pokemon.bars > 0) and (contrincant.bars > 0):
 
-        # Print the health of each pokemon
-        print_health(pokemon, contrincant)
-        print_moves(pokemon)
+
 
         index = int(input('Pick a move: '))
         delay_print(f"\n{pokemon.name} used {pokemon.moves[index - 1].get_name()}!")
