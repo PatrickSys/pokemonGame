@@ -2,6 +2,8 @@ import sys
 import time
 import numpy as np
 
+from pokemon.Pokemon import *
+
 
 class bcolors:
     HEADER = '\033[95m'
@@ -14,6 +16,7 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+
 def ident(tabs):
     identation = ""
     for i in range(tabs):
@@ -23,26 +26,30 @@ def ident(tabs):
 
 # Print fight information
 def print_header(pokemon, contrincant):
-    print(bcolors.HEADER + "------------------------------------------POKEMON FIGHT!------------------------------------------\n" + bcolors.ENDC)
+    print(
+        bcolors.HEADER + "------------------------------------------POKEMON FIGHT!------------------------------------------\n" + bcolors.ENDC)
     print_versus(pokemon, contrincant)
     print_types(pokemon, contrincant)
-    print_stat(f"HP/{ident(1)}", pokemon.hp, f"{ident(4)}{contrincant.hp}")
-    print_stat("ATTACK/", pokemon.attack, f"{ident(4)}{contrincant.attack}")
-    print_stat("DEFENSE/", pokemon.defense, f"{ident(4)}{contrincant.defense}")
-    print_stat("SPEED/\t", pokemon.speed, f"{ident(4)}{contrincant.speed}")
+    print_stat(f"HP/{ident(1)}", pokemon.get_hp(), f"{ident(4)}{contrincant.get_hp()}")
+    print_stat("ATTACK/", pokemon.get_attack(), f"{ident(4)}{contrincant.get_attack()}")
+    print_stat("DEFENSE/", pokemon.get_defense(), f"{ident(4)}{contrincant.get_defense()}")
+    print_stat("SPEED/\t", pokemon.get_speed(), f"{ident(4)}{contrincant.get_speed()}")
     time.sleep(.2)
 
 
-
 def print_versus(pokemon, contrincant):
-    print(bcolors.WARNING + f"{ident(6)} {pokemon.name} {ident(4)}" + bcolors.ENDC + bcolors.FAIL + "VS" + bcolors.WARNING +
-          f"{ident(3)} {contrincant.name}" + bcolors.ENDC)
+    print(
+        bcolors.WARNING + f"{ident(6)} {pokemon.get_name()} {ident(4)}" + bcolors.ENDC + bcolors.FAIL + "VS" + bcolors.WARNING +
+        f"{ident(3)} {contrincant.get_name()}" + bcolors.ENDC)
+
 
 def print_types(pokemon, contrincant):
-    print(f"{bcolors.OKCYAN} TYPE/ {bcolors.ENDC} {ident(4)}", ', '.join(pokemon.types), ident(6),', '.join(contrincant.types))
+    print(f"{bcolors.OKCYAN} TYPE/ {bcolors.ENDC} {ident(4)}", ', '.join(pokemon.get_types()), ident(6),
+          ', '.join(contrincant.get_types()))
+
 
 def print_stat(stat_name, pokemon_stat, contrincant_stat):
-    print(f"{bcolors.OKCYAN} {stat_name} {bcolors.ENDC} {ident(4)}", pokemon_stat, ident(4),' ', contrincant_stat)
+    print(f"{bcolors.OKCYAN} {stat_name} {bcolors.ENDC} {ident(4)}", pokemon_stat, ident(4), ' ', contrincant_stat)
 
 
 # Delay printing
@@ -54,35 +61,96 @@ def delay_print(s):
 
 
 def print_health(pokemon, contrincant):
-    print(f"\n{pokemon.get_name()}", f"HEALTH\t{bcolors.OKGREEN}{pokemon.get_health()}{bcolors.ENDC}".rjust(45-len(pokemon.get_name()), ' '))
-    print(f"{contrincant.get_name()}", f"HEALTH\t{bcolors.OKGREEN}{contrincant.get_health()}{bcolors.ENDC}".rjust(45-len(contrincant.get_name()), ' '),'\n')
+    print(f"\n{pokemon.get_name()}", f"HEALTH\t{bcolors.OKGREEN}{pokemon.get_health()}{bcolors.ENDC}".rjust(
+        45 - len(pokemon.get_name()) - len(pokemon.get_health()), ' '))
+    print(f"{contrincant.get_name()}", f"HEALTH\t{bcolors.OKGREEN}{contrincant.get_health()}{bcolors.ENDC}".rjust(
+        45 - len(contrincant.get_name()) - len(contrincant.get_health()), ' '), '\n')
 
 
 def print_moves(pokemon):
     print(f"Go {pokemon.get_name()}!")
-    print(f'\n[{pokemon.moves[0].get_name()}][{pokemon.moves[0].get_pp()} PP]\t[{pokemon.moves[1].get_name()}][{pokemon.moves[1].get_pp()} PP]')
-    print(f'[{pokemon.moves[2].get_name()}][{pokemon.moves[2].get_pp()} PP]\t[{pokemon.moves[3].get_name()}][{pokemon.moves[3].get_pp()} PP]\n')
+    print(f'\n{move_name_and_pp(pokemon)}\n')
+
+
+def move_name_and_pp(pokemon):
+    moves = ''
+
+    for i in range(4):
+        moves += f"[{pokemon.get_moves()[i].get_name()}][{print_in_color_on_low_pp(pokemon.get_moves()[i])} PP] \t"
+
+    return moves
+
+
+def print_in_color_on_low_pp(move):
+    if no_pp_left(move):
+        return move_in_red(move)
+
+    if pp_at_50_percent(move):
+        return move_in_yellow(move)
+    else:
+        return move.get_pp()
+
+
+def pp_at_50_percent(move):
+    return move.get_pp() < (move.get_total_pp() * 50 / 100)
+
+
+def move_in_red(move):
+    return f"{bcolors.FAIL}{move.get_pp()}{bcolors.ENDC}"
+
+
+def move_in_yellow(move):
+    return f"{bcolors.WARNING}{move.get_pp()}{bcolors.ENDC}"
 
 
 def ask_move(pokemon):
     print_moves(pokemon)
     return int(input('Pick a move: '))
 
+
+def do_attack(pokemon, move, contrincant):
+    waste_pp(move)
+
+    if move_heals(move):
+        pokemon.set_bars(pokemon.get_bars() + 2)
+
+    if move_doesnt_miss(move):
+        crit = move_crits()
+
+        # damage calculation
+        damage = abs(crit * ((pokemon.get_attack() * move.power * 50) - (
+                (contrincant.hp / 4.5) * (contrincant.defense * 35)))) / 52500
+
+        if move_is_strong_against(move, contrincant):
+            print("\nIt's super effective!")
+            damage *= 1.5
+
+        if move_is_weak_against(move, contrincant):
+            print("\nIt's not very effective...")
+            damage *= 0.5
+
+        effect_damage(damage, contrincant)
+
+    else:
+        return pokemon.attack_missed()
+
+
 # Allow two pokemon to fight each other
-
 def turn(pokemon, contrincant):
-
     index = ask_move(pokemon)
-    delay_print(f"\n{pokemon.name} used {pokemon.moves[index - 1].get_name()}!")
+    move = pokemon.get_moves()[index - 1]
+
+    while no_pp_left(move):
+        print(f"\n{bcolors.WARNING}No PP left!{bcolors.ENDC}")
+        index = ask_move(pokemon)
+        move = pokemon.get_moves()[index - 1]
+
+    delay_print(f"\n{pokemon.get_name()} used {move.get_name()}!")
     time.sleep(.1)
 
     # Determine damage
-    pokemon.do_attack(pokemon.moves[index - 1], contrincant)
-    time.sleep(.1)
-
-    print_health(pokemon, contrincant)
+    do_attack(pokemon, move, contrincant)
     time.sleep(.5)
-
 
     # Check to see if Pokemon fainted
     if contrincant.get_bars() <= 0:
@@ -94,12 +162,10 @@ def contrincant_is_faster_than_pokemon(pokemon, contrincant):
     return contrincant.get_speed() > pokemon.get_speed()
 
 
-
 def fight(pokemon, contrincant):
     print_header(pokemon, contrincant)
 
-
-    # Take speed in count, if so swap turns TODO is this ok?
+    # Take speed in count, if so swap turns
     if contrincant_is_faster_than_pokemon(pokemon, contrincant):
         swap = pokemon
         pokemon = contrincant
@@ -107,15 +173,15 @@ def fight(pokemon, contrincant):
 
     # Continue while pokemon still have health
 
-    while (pokemon.get_bars() > 0) and (contrincant.get_bars() > 0):
+    while pokemon.is_not_dead and contrincant.is_not_dead():
 
-        if turn(pokemon, contrincant) or turn(contrincant, pokemon) == -1:
+        print_health(pokemon, contrincant)
+        if turn(pokemon, contrincant) == -1:
             break
 
-
-
-
-
+        print_health(pokemon, contrincant)
+        if turn(contrincant, pokemon) == -1:
+            break
 
     money = np.random.choice(5000)
     delay_print(f"\nOpponent paid you ${money}.\n")

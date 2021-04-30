@@ -1,6 +1,8 @@
+import math
 import random
 import requests
 import json
+
 from pokemon.moves import Moves
 
 
@@ -50,59 +52,34 @@ class Pokemon:
     def set_bars(self, bars):
         self.bars = bars
 
-
     def get_health(self):
         return self.health
 
     def set_health(self, health):
         self.health = health
 
+    def is_not_dead(self):
+        return self.bars > 0
+
+    def get_moves(self):
+        return self.moves
+
+    def get_types(self):
+        return self.types
+
     # Attack pokemon function, where manages PP left, calculates damage,
     # crit chance, miss chance, and takes in count types advantages
-
-    def do_attack(self, move, contrincant):
-
-        if no_pp_left(move):
-            print("No PP left!")
-            return
-
-        waste_pp(move)
-
-        if move_heals(move):
-            self.set_bars(self.get_bars() + 2)
-
-        if move_doesnt_miss(move):
-            crit = move_crits()
-
-            # damage calculation
-            damage = abs(crit * ((self.get_attack() * move.power * 50) - (
-                    (contrincant.hp / 4.5) * (contrincant.defense * 35)))) / 52500
-
-            if move_is_strong_against(move, contrincant):
-                print("\nIt's super effective!")
-                damage *= 1.5
-
-            if move_is_weak_against(move, contrincant):
-                print("\nIt's not very effective...")
-                damage *= 0.5
-
-            effect_damage(damage, contrincant)
-
-        else:
-            return self.attack_missed()
-
 
     # sets health string in correlation with bars attribute
     def convert_bars_to_health(self):
         health = ''
-        for i in range(int(self.get_bars())):
+        for i in range(int(math.ceil(self.get_bars()))):
             health += '='
         return health
 
 
 def no_pp_left(move):
     return move.get_pp() <= 0
-
 
 
 def move_heals(move):
@@ -133,10 +110,8 @@ def move_is_strong_against(move, contrincant):
     return move.get_type() in contrincant.get_weaknesses()
 
 
-
 def move_is_weak_against(move, contrincant):
     return move.get_type() in contrincant.get_strengths()
-
 
 
 def effect_damage(damage, contrincant):

@@ -13,6 +13,7 @@ class Moves:
         self.power = power
         self.pp = pp
         self.priority = priority
+        self.total_pp = pp
 
     def get_name(self):
         return self.name
@@ -36,6 +37,10 @@ class Moves:
         return self.category
     def get_type(self):
         return self.type
+
+    def get_total_pp(self):
+        return self.total_pp
+
 
     def create_mov(pokemon, rand):
         get_moves = requests.get(pokemon['moves'][rand]['move']['url'])
