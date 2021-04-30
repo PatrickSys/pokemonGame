@@ -70,10 +70,10 @@ def print_health(pokemon, contrincant):
 
 def print_moves(pokemon):
     print(f"Go {pokemon.get_name()}!")
-    print(f'\n{move_name_and_pp(pokemon)}\n')
+    print(f'\n{moves_name_and_pp(pokemon)}\n')
 
 
-def move_name_and_pp(pokemon):
+def moves_name_and_pp(pokemon):
     moves = ''
 
     for i in range(len(pokemon.moves)):
@@ -109,9 +109,23 @@ def ask_move(pokemon):
     return int(input('Pick a move: '))
 
 
+def calculate_move_effectiveness(move, contrincant):
+    modifier = 1
+
+    for i in range(len(contrincant.get_types())):
+        if move_is_strong_against(move, contrincant):
+            modifier *= 2
+
+        if move_is_weak_against(move, contrincant):
+            modifier *= 0.5
+
+    return modifier
+
+
 def do_attack(pokemon, move, contrincant):
+
     waste_pp(move)
-    modifier=1
+
     if move_heals(move):
         pokemon.set_bars(pokemon.get_bars() + 2)
 
@@ -121,20 +135,20 @@ def do_attack(pokemon, move, contrincant):
         # damage calculation
         damage = abs(crit * ((pokemon.get_attack() * move.power * 50) - (
                 (contrincant.hp / 4.5) * (contrincant.defense * 35)))) / 52500
-        for i in range(len(move.get_type())):
-            if move_is_strong_against(move, contrincant):
-                damage *= 2
-                modifier += 1
 
-            if move_is_weak_against(move, contrincant):
-                damage *= 0.5
-                modifier -= 1
+        # calculates move damage multiplier based on efectiveness
+        damage_modifier = calculate_move_effectiveness(move, contrincant)
+        damage *= damage_modifier
+        print(damage_modifier, "modif")
 
-        if modifier > 1:
+        if damage_modifier > 1:
             print("\nIt's super effective!")
-        elif modifier < 1:
+        elif damage_modifier < 1:
             print("\nIt's not very effective...")
+
+        print(damage, " damage")
         effect_damage(damage, contrincant)
+
 
     else:
         return pokemon.attack_missed()
@@ -149,7 +163,7 @@ def user_turn(pokemon, contrincant):
         print(f"\n{bcolors.WARNING}No PP left!{bcolors.ENDC}")
         index = ask_move(pokemon)
         move = pokemon.get_moves()[index - 1]
-    turn(pokemon,move,contrincant)
+    return turn(pokemon,move,contrincant)
 
 
 def turn(pokemon, move, contrincant):
@@ -162,34 +176,60 @@ def turn(pokemon, move, contrincant):
 
     # Check to see if Pokemon fainted
     if contrincant.get_bars() <= 0:
+        print_health(pokemon, contrincant)
         delay_print("\n..." + contrincant.get_name() + ' fainted.')
         return -1
 
 
-def contrincant_is_faster_than_pokemon(pokemon, contrincant):
-    return contrincant.get_speed() > pokemon.get_speed()
+def ia_is_faster_than_pokemon(pokemon, ia):
+    return ia.get_speed() > pokemon.get_speed()
 
 
 def fight(pokemon, contrincant):
+
     print_header(pokemon, contrincant)
 
-    # Take speed in count, if so swap turns
-    #if contrincant_is_faster_than_pokemon(pokemon, contrincant):
-     #   swap = pokemon
-     #   pokemon = contrincant
-      #  contrincant = swap
 
     # Continue while pokemon still have health
+    if ia_is_faster_than_pokemon(pokemon, contrincant):
+        ia_attacks_first(pokemon, contrincant)
+    else:
+        attack_turns(pokemon, contrincant)
 
-    while pokemon.is_not_dead and contrincant.is_not_dead():
 
-        print_health(pokemon, contrincant)
-        if user_turn(pokemon, contrincant) == -1:
-            break
+
+
+def ia_attacks_first(pokemon, contrincant):
+    money = np.random.choice(5000)
+    while pokemon.is_not_dead() and contrincant.is_not_dead():
 
         print_health(pokemon, contrincant)
         if IA.ia_attack(contrincant, pokemon) == -1:
+            delay_print(f"\nYou you ${money}.\n")
             break
 
+        print_health(pokemon, contrincant)
+
+        if user_turn(pokemon, contrincant) == -1:
+            delay_print(f"\nOpponent paid you ${money}.\n")
+
+
+
+
+
+
+
+def attack_turns(pokemon, contrincant):
     money = np.random.choice(5000)
-    delay_print(f"\nOpponent paid you ${money}.\n")
+    while pokemon.is_not_dead() and contrincant.is_not_dead():
+
+        print_health(pokemon, contrincant)
+        if user_turn(pokemon, contrincant) == -1:
+            delay_print(f"\nOpponent paid you ${money}.\n")
+            break
+
+        print_health(pokemon, contrincant)
+
+        if IA.ia_attack(contrincant, pokemon) == -1:
+            delay_print(f"\nYou you ${money}.\n")
+
