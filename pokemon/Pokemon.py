@@ -89,17 +89,12 @@ class Pokemon:
 
 
 def no_pp_left(move):
-    if move.get_pp() <= 0:
-        return True
-    else:
-        return False
+    return move.get_pp() <= 0
+
 
 
 def move_heals(move):
-    if "healing" in move.get_category():
-        return True
-    else:
-        return False
+    return "healing" in move.get_category()
 
 
 def waste_pp(move):
@@ -108,10 +103,7 @@ def waste_pp(move):
 # random miss chance
 def move_doesnt_miss(move):
     miss_chance = random.randint(0, 100)
-    if miss_chance <= move.get_accuracy():
-        return True
-    else:
-        return False
+    return miss_chance <= move.get_accuracy()
 
 # Calculates random crit chance
 def move_crits():
@@ -124,17 +116,13 @@ def move_crits():
 
 
 def move_is_strong_against(move, contrincant):
-    if move.get_type() in contrincant.get_weaknesses():
-        return True
-    else:
-        return False
+    return move.get_type() in contrincant.get_weaknesses()
+
 
 
 def move_is_weak_against(move, contrincant):
-    if move.get_type() in contrincant.get_strengths():
-        return True
-    else:
-        return False
+    return move.get_type() in contrincant.get_strengths()
+
 
 
 def effect_damage(damage, contrincant):
