@@ -175,7 +175,7 @@ def set_stats(pokemon):
 def create_user_pokemon():
     # Ask the pokemon to be created
     pokemon_input = ask_pokemon()
-    create_pokemon(pokemon_input)
+    return create_pokemon(pokemon_input)
 
 
 def create_pokemon(pokemon_required):

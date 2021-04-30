@@ -1,6 +1,7 @@
 import sys
 import time
 import numpy as np
+import IA
 
 from pokemon.Pokemon import *
 
@@ -75,7 +76,7 @@ def print_moves(pokemon):
 def move_name_and_pp(pokemon):
     moves = ''
 
-    for i in range(4):
+    for i in range(len(pokemon.moves)):
         moves += f"[{pokemon.get_moves()[i].get_name()}][{print_in_color_on_low_pp(pokemon.get_moves()[i])} PP] \t"
 
     return moves
@@ -110,7 +111,7 @@ def ask_move(pokemon):
 
 def do_attack(pokemon, move, contrincant):
     waste_pp(move)
-
+    modifier=1
     if move_heals(move):
         pokemon.set_bars(pokemon.get_bars() + 2)
 
@@ -120,15 +121,19 @@ def do_attack(pokemon, move, contrincant):
         # damage calculation
         damage = abs(crit * ((pokemon.get_attack() * move.power * 50) - (
                 (contrincant.hp / 4.5) * (contrincant.defense * 35)))) / 52500
+        for i in range(len(move.get_type())):
+            if move_is_strong_against(move, contrincant):
+                damage *= 2
+                modifier += 1
 
-        if move_is_strong_against(move, contrincant):
+            if move_is_weak_against(move, contrincant):
+                damage *= 0.5
+                modifier -= 1
+
+        if modifier > 1:
             print("\nIt's super effective!")
-            damage *= 1.5
-
-        if move_is_weak_against(move, contrincant):
+        elif modifier < 1:
             print("\nIt's not very effective...")
-            damage *= 0.5
-
         effect_damage(damage, contrincant)
 
     else:
@@ -136,7 +141,7 @@ def do_attack(pokemon, move, contrincant):
 
 
 # Allow two pokemon to fight each other
-def turn(pokemon, contrincant):
+def user_turn(pokemon, contrincant):
     index = ask_move(pokemon)
     move = pokemon.get_moves()[index - 1]
 
@@ -144,7 +149,10 @@ def turn(pokemon, contrincant):
         print(f"\n{bcolors.WARNING}No PP left!{bcolors.ENDC}")
         index = ask_move(pokemon)
         move = pokemon.get_moves()[index - 1]
+    turn(pokemon,move,contrincant)
 
+
+def turn(pokemon, move, contrincant):
     delay_print(f"\n{pokemon.get_name()} used {move.get_name()}!")
     time.sleep(.1)
 
@@ -166,21 +174,21 @@ def fight(pokemon, contrincant):
     print_header(pokemon, contrincant)
 
     # Take speed in count, if so swap turns
-    if contrincant_is_faster_than_pokemon(pokemon, contrincant):
-        swap = pokemon
-        pokemon = contrincant
-        contrincant = swap
+    #if contrincant_is_faster_than_pokemon(pokemon, contrincant):
+     #   swap = pokemon
+     #   pokemon = contrincant
+      #  contrincant = swap
 
     # Continue while pokemon still have health
 
     while pokemon.is_not_dead and contrincant.is_not_dead():
 
         print_health(pokemon, contrincant)
-        if turn(pokemon, contrincant) == -1:
+        if user_turn(pokemon, contrincant) == -1:
             break
 
         print_health(pokemon, contrincant)
-        if turn(contrincant, pokemon) == -1:
+        if IA.ia_attack(contrincant, pokemon) == -1:
             break
 
     money = np.random.choice(5000)
