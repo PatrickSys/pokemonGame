@@ -172,10 +172,13 @@ def set_stats(pokemon):
 
     return [hp, attack, defense, speed]
 
-
-def create_pokemon():
+def create_user_pokemon():
     # Ask the pokemon to be created
-    pokemon_required = ask_pokemon()
+    pokemon_input = ask_pokemon()
+    create_pokemon(pokemon_input)
+
+
+def create_pokemon(pokemon_required):
 
     # Get API data for the pokemon
     pokemon = get_pokemon_data(pokemon_required)
