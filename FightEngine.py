@@ -54,12 +54,12 @@ def delay_print(s):
 
 
 def print_health(pokemon, contrincant):
-    print(f"\n{pokemon.name}", f"HEALTH\t{bcolors.OKGREEN}{pokemon.health}{bcolors.ENDC}".rjust(45-len(pokemon.name), ' '))
-    print(f"{contrincant.name}", f"HEALTH\t{bcolors.OKGREEN}{contrincant.health}{bcolors.ENDC}".rjust(45-len(contrincant.name), ' '),'\n')
+    print(f"\n{pokemon.get_name()}", f"HEALTH\t{bcolors.OKGREEN}{pokemon.get_health()}{bcolors.ENDC}".rjust(45-len(pokemon.get_name()), ' '))
+    print(f"{contrincant.get_name()}", f"HEALTH\t{bcolors.OKGREEN}{contrincant.get_health()}{bcolors.ENDC}".rjust(45-len(contrincant.get_name()), ' '),'\n')
 
 
 def print_moves(pokemon):
-    print(f"Go {pokemon.name}!")
+    print(f"Go {pokemon.get_name()}!")
     print(f'\n[{pokemon.moves[0].get_name()}][{pokemon.moves[0].get_pp()} PP]\t[{pokemon.moves[1].get_name()}][{pokemon.moves[1].get_pp()} PP]')
     print(f'[{pokemon.moves[2].get_name()}][{pokemon.moves[2].get_pp()} PP]\t[{pokemon.moves[3].get_name()}][{pokemon.moves[3].get_pp()} PP]\n')
 
@@ -83,13 +83,14 @@ def turn(pokemon, contrincant):
     print_health(pokemon, contrincant)
     time.sleep(.5)
 
+
     # Check to see if Pokemon fainted
-    if contrincant.bars <= 0:
-        delay_print("\n..." + contrincant.name + ' fainted.')
+    if contrincant.get_bars() <= 0:
+        delay_print("\n..." + contrincant.get_name() + ' fainted.')
         return -1
 
 
-def contrinant_is_faster_than_pokemon(pokemon, contrincant):
+def contrincant_is_faster_than_pokemon(pokemon, contrincant):
     return contrincant.get_speed() > pokemon.get_speed()
 
 
@@ -99,23 +100,20 @@ def fight(pokemon, contrincant):
 
 
     # Take speed in count, if so swap turns TODO is this ok?
-    if contrinant_is_faster_than_pokemon(pokemon, contrincant):
+    if contrincant_is_faster_than_pokemon(pokemon, contrincant):
         swap = pokemon
         pokemon = contrincant
         contrincant = swap
 
     # Continue while pokemon still have health
 
-    while (pokemon.bars > 0) and (contrincant.bars > 0):
+    while (pokemon.get_bars() > 0) and (contrincant.get_bars() > 0):
 
-        if turn(pokemon, contrincant) == -1:
+        if turn(pokemon, contrincant) or turn(contrincant, pokemon) == -1:
             break
 
-        if turn(contrincant, pokemon) == -1:
-            break
 
-        else:
-            break
+
 
 
 

@@ -15,7 +15,7 @@ class Pokemon:
         self.attack = attack
         self.defense = defense
         self.bars = 20.0  # Amount of health bars
-        self.health = self.set_health()
+        self.health = self.convert_bars_to_health()
         self.speed = speed
         self.strengths = strengths
         self.weaknesses = weaknesses
@@ -44,6 +44,18 @@ class Pokemon:
     def attack_missed(self):
         return self.get_name() + "missed the attack!"
 
+    def get_bars(self):
+        return self.bars
+
+    def set_bars(self, bars):
+        self.bars = bars
+
+
+    def get_health(self):
+        return self.health
+
+    def set_health(self, health):
+        self.health = health
 
     # Attack pokemon function, where manages PP left, calculates damage,
     # crit chance, miss chance, and takes in count types advantages
@@ -57,13 +69,13 @@ class Pokemon:
         waste_pp(move)
 
         if move_heals(move):
-            self.bars += 2
+            self.set_bars(self.get_bars() + 2)
 
         if move_doesnt_miss(move):
             crit = move_crits()
 
             # damage calculation
-            damage = abs(crit * ((self.attack * move.power * 50) - (
+            damage = abs(crit * ((self.get_attack() * move.power * 50) - (
                     (contrincant.hp / 4.5) * (contrincant.defense * 35)))) / 52500
 
             if move_is_strong_against(move, contrincant):
@@ -81,9 +93,9 @@ class Pokemon:
 
 
     # sets health string in correlation with bars attribute
-    def set_health(self):
+    def convert_bars_to_health(self):
         health = ''
-        for i in range(int(self.bars)):
+        for i in range(int(self.get_bars())):
             health += '='
         return health
 
@@ -100,10 +112,12 @@ def move_heals(move):
 def waste_pp(move):
     move.set_pp(move.get_pp() - 1)
 
+
 # random miss chance
 def move_doesnt_miss(move):
     miss_chance = random.randint(0, 100)
     return miss_chance <= move.get_accuracy()
+
 
 # Calculates random crit chance
 def move_crits():
@@ -126,8 +140,8 @@ def move_is_weak_against(move, contrincant):
 
 
 def effect_damage(damage, contrincant):
-    contrincant.bars -= damage
-    contrincant.health = contrincant.set_health()
+    contrincant.set_bars(contrincant.get_bars() - damage)
+    contrincant.set_health(contrincant.convert_bars_to_health())
 
 
 def ask_pokemon():
