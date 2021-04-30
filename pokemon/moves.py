@@ -51,5 +51,4 @@ class Moves:
         mov_pp = mov['pp']
         mov_priority = mov['priority']
         type = mov['type']['name']
-        print(mov_name, type)
         return Moves(accuracy, mov_name, category, type, mov_power, mov_pp, mov_priority)

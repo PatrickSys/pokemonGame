@@ -64,57 +64,60 @@ def print_moves(pokemon):
     print(f'[{pokemon.moves[2].get_name()}][{pokemon.moves[2].get_pp()} PP]\t[{pokemon.moves[3].get_name()}][{pokemon.moves[3].get_pp()} PP]\n')
 
 
-
+def ask_move(pokemon):
+    print_moves(pokemon)
+    return int(input('Pick a move: '))
 
 # Allow two pokemon to fight each other
+
+def turn(pokemon, contrincant):
+
+    index = ask_move(pokemon)
+    delay_print(f"\n{pokemon.name} used {pokemon.moves[index - 1].get_name()}!")
+    time.sleep(.1)
+
+    # Determine damage
+    pokemon.do_attack(pokemon.moves[index - 1], contrincant)
+    time.sleep(.1)
+
+    print_health(pokemon, contrincant)
+    time.sleep(.5)
+
+    # Check to see if Pokemon fainted
+    if contrincant.bars <= 0:
+        delay_print("\n..." + contrincant.name + ' fainted.')
+        return -1
+
+
+def contrinant_is_faster_than_pokemon(pokemon, contrincant):
+    return contrincant.get_speed() > pokemon.get_speed()
+
+
+
 def fight(pokemon, contrincant):
     print_header(pokemon, contrincant)
 
-    # TODO Consider type advantages
+
+    # Take speed in count, if so swap turns TODO is this ok?
+    if contrinant_is_faster_than_pokemon(pokemon, contrincant):
+        swap = pokemon
+        pokemon = contrincant
+        contrincant = swap
 
     # Continue while pokemon still have health
 
     while (pokemon.bars > 0) and (contrincant.bars > 0):
 
-
-
-        index = int(input('Pick a move: '))
-        delay_print(f"\n{pokemon.name} used {pokemon.moves[index - 1].get_name()}!")
-        time.sleep(.1)
-
-        # Determine damage
-        pokemon.do_attack(pokemon.moves[index-1], contrincant)
-
-
-        time.sleep(.1)
-        print_health(pokemon, contrincant)
-        time.sleep(.5)
-
-        # Check to see if Pokemon fainted
-        if contrincant.bars <= 0:
-            delay_print("\n..." + contrincant.name + ' fainted.')
+        if turn(pokemon, contrincant) == -1:
             break
 
-        # Pokemon2s turn
-
-        print_moves(contrincant)
-
-        index = int(input('Pick a move: '))
-        delay_print(f"\n{contrincant.name} used {contrincant.moves[index - 1].get_name()}!")
-        time.sleep(.1)
-
-        # Determine damage
-
-        contrincant.do_attack(contrincant.moves[index-1], pokemon)
-
-        time.sleep(.1)
-        print_health(pokemon, contrincant)
-        time.sleep(.5)
-
-        # Check to see if Pokemon fainted
-        if pokemon.bars <= 0:
-            delay_print("\n..." + pokemon.name + ' fainted.')
+        if turn(contrincant, pokemon) == -1:
             break
+
+        else:
+            break
+
+
 
     money = np.random.choice(5000)
     delay_print(f"\nOpponent paid you ${money}.\n")

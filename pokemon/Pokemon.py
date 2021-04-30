@@ -6,12 +6,6 @@ from pokemon.moves import Moves
 
 class Pokemon:
 
-    def set_health(self):
-        health = ''
-        for i in range(int(self.bars)):
-            health += '='
-        return health
-
     def __init__(self, name, types, moves, hp, attack, defense, speed, strengths, weaknesses):
         # save variables as attributes
         self.name = name
@@ -44,64 +38,120 @@ class Pokemon:
     def get_strengths(self):
         return self.strengths
 
+    def get_speed(self):
+        return self.speed
+
+    def attack_missed(self):
+        return self.get_name() + "missed the attack!"
+
+
+    # Attack pokemon function, where manages PP left, calculates damage,
+    # crit chance, miss chance, and takes in count types advantages
+
     def do_attack(self, move, contrincant):
-        miss_chance = random.randint(0, 100)
-        crit_chance = random.randint(0, 100)
-        crit = 1
 
-
-        if move.get_pp() == 0:
-            print("no PP left")
+        if no_pp_left(move):
+            print("No PP left!")
             return
 
-        if move.get_category() == "healing":
+        waste_pp(move)
+
+        if move_heals(move):
             self.bars += 2
 
-        move.set_pp(move.get_pp()-1)
-        if miss_chance <= move.get_accuracy():
-            if crit_chance <= 6:
-                crit = 2
-                print("\nCritical Strike! ")
+        if move_doesnt_miss(move):
+            crit = move_crits()
 
+            # damage calculation
+            damage = abs(crit * ((self.attack * move.power * 50) - (
+                    (contrincant.hp / 4.5) * (contrincant.defense * 35)))) / 52500
 
-            damage = abs(crit * ((self.attack * move.power * 50) - ((contrincant.hp / 4.5) * (contrincant.defense * 35)))) / 52500
-
-            #print(damage, "here")
-            if move.get_type() in contrincant.get_weaknesses():
-                print("\nIt's supper effective!")
+            if move_is_strong_against(move, contrincant):
+                print("\nIt's super effective!")
                 damage *= 1.5
 
-            if move.get_type() in contrincant.get_strengths():
+            if move_is_weak_against(move, contrincant):
                 print("\nIt's not very effective...")
                 damage *= 0.5
 
-            #print(damage, " dmg\n")
-            #print(((crit * ((self.attack * move.power * 50) - ((contrincant.hp / 4.5) * (contrincant.defense * 35)))) / 52500), "real")
             effect_damage(damage, contrincant)
 
         else:
-            return self.get_name() + "miss the attack"
+            return self.attack_missed()
+
+
+    # sets health string in correlation with bars attribute
+    def set_health(self):
+        health = ''
+        for i in range(int(self.bars)):
+            health += '='
+        return health
+
+
+def no_pp_left(move):
+    if move.get_pp() <= 0:
+        return True
+    else:
+        return False
+
+
+def move_heals(move):
+    if "healing" in move.get_category():
+        return True
+    else:
+        return False
+
+
+def waste_pp(move):
+    move.set_pp(move.get_pp() - 1)
+
+# random miss chance
+def move_doesnt_miss(move):
+    miss_chance = random.randint(0, 100)
+    if miss_chance <= move.get_accuracy():
+        return True
+    else:
+        return False
+
+# Calculates random crit chance
+def move_crits():
+    crit_chance = random.randint(0, 100)
+    if crit_chance <= 6:
+        print("\nCritical Strike! ")
+        return 2
+    else:
+        return 1
+
+
+def move_is_strong_against(move, contrincant):
+    if move.get_type() in contrincant.get_weaknesses():
+        return True
+    else:
+        return False
+
+
+def move_is_weak_against(move, contrincant):
+    if move.get_type() in contrincant.get_strengths():
+        return True
+    else:
+        return False
 
 
 def effect_damage(damage, contrincant):
-
     contrincant.bars -= damage
     contrincant.health = contrincant.set_health()
 
 
+def ask_pokemon():
+    return str(input("Which pokemon is selected?\t")).lower()
 
 
-def create_pokemon():
-    # Ask the pokemon to be made
-    pokemon_required = str(input("Which pokemon is selected?\t")).lower()
+def get_pokemon_data(pokemon):
+    resp = requests.get(f"https://pokeapi.co/api/v2/pokemon/{pokemon}")
+    return json.loads(resp.text)
 
-    # Get API data for the pokemon
-    resp = requests.get(f"https://pokeapi.co/api/v2/pokemon/{pokemon_required}")
-    pokemon = json.loads(resp.text)
 
-    # Start getting wanted data
-    name = pokemon['name'].capitalize()
-
+def get_weaknessses_and_strengths(pokemon):
     # Array of types
     types = []
     strengths = []
@@ -121,9 +171,10 @@ def create_pokemon():
         for k in range(len(damage_relations['damage_relations']['double_damage_from'])):
             weaknesses.append(damage_relations['damage_relations']['double_damage_from'][k]['name'])
 
+    return [types, strengths, weaknesses]
 
-    # Array of moves, gets 4 random moves on the pokemon selected
 
+def generate_moves(pokemon):
     moves = []
     for i in range(4):
         for k in range(len(pokemon['moves'])):
@@ -133,12 +184,35 @@ def create_pokemon():
                 moves.append(new_move)
                 break
 
-    # stat 0 hp 1 attack 2 defense 5 speed
+    return moves
 
+
+def set_stats(pokemon):
     hp = 3 * (pokemon['stats'][0]['base_stat'])
     attack = pokemon['stats'][1]['base_stat']
     defense = pokemon['stats'][2]['base_stat']
     speed = pokemon['stats'][5]['base_stat']
 
+    return [hp, attack, defense, speed]
+
+
+def create_pokemon():
+    # Ask the pokemon to be created
+    pokemon_required = ask_pokemon()
+
+    # Get API data for the pokemon
+    pokemon = get_pokemon_data(pokemon_required)
+
+    # Start getting wanted data
+    name = pokemon['name'].capitalize()
+
+    # Get pokemon strengths and weaknesses based on it's type
+    [types, strengths, weaknesses] = get_weaknessses_and_strengths(pokemon)
+
+    # Array of moves, gets 4 random moves on the pokemon selected
+    moves = generate_moves(pokemon)
+
+    # gets return of stats as an array
+    [hp, attack, defense, speed] = set_stats(pokemon)
 
     return Pokemon(name, types, moves, hp, attack, defense, speed, strengths, weaknesses)
