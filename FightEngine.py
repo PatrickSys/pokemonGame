@@ -63,9 +63,9 @@ def delay_print(s):
 
 def print_health(pokemon, contrincant):
     print(f"\n{pokemon.get_name()}", f"HEALTH\t{bcolors.OKGREEN}{pokemon.get_health()}{bcolors.ENDC}".rjust(
-        45 - len(pokemon.get_name()) - len(pokemon.get_health()), ' '))
+        60 - len(pokemon.get_name()) -20, ' '))
     print(f"{contrincant.get_name()}", f"HEALTH\t{bcolors.OKGREEN}{contrincant.get_health()}{bcolors.ENDC}".rjust(
-        45 - len(contrincant.get_name()) - len(contrincant.get_health()), ' '), '\n')
+        60 - len(contrincant.get_name()) -20, ' '), '\n')
 
 
 def print_moves(pokemon):
@@ -127,26 +127,24 @@ def do_attack(pokemon, move, contrincant):
     waste_pp(move)
 
     if move_heals(move):
-        pokemon.set_bars(pokemon.get_bars() + 2)
+        pokemon.set_bars(pokemon.get_bars() + move.get_healing()/15)
+        pokemon.set_health(pokemon.convert_bars_to_health())
 
     if move_doesnt_miss(move):
         crit = move_crits()
 
         # damage calculation
         damage = abs(crit * ((pokemon.get_attack() * move.power * 50) - (
-                (contrincant.hp / 4.5) * (contrincant.defense * 35)))) / 52500
+                (contrincant.hp / 4.5) * (contrincant.defense * 35)))) / 72500
 
         # calculates move damage multiplier based on efectiveness
         damage_modifier = calculate_move_effectiveness(move, contrincant)
         damage *= damage_modifier
-        print(damage_modifier, "modif")
 
         if damage_modifier > 1:
             print("\nIt's super effective!")
         elif damage_modifier < 1:
             print("\nIt's not very effective...")
-
-        print(damage, " damage")
         effect_damage(damage, contrincant)
 
 
@@ -204,8 +202,8 @@ def ia_attacks_first(pokemon, contrincant):
     while pokemon.is_not_dead() and contrincant.is_not_dead():
 
         print_health(pokemon, contrincant)
-        if IA.ia_attack(contrincant, pokemon) == -1:
-            delay_print(f"\nYou you ${money}.\n")
+        if IA.ia_turn(contrincant, pokemon) == -1:
+            delay_print(f"\nYou paid ${money}.\n")
             break
 
         print_health(pokemon, contrincant)
@@ -230,6 +228,6 @@ def attack_turns(pokemon, contrincant):
 
         print_health(pokemon, contrincant)
 
-        if IA.ia_attack(contrincant, pokemon) == -1:
-            delay_print(f"\nYou you ${money}.\n")
+        if IA.ia_turn(contrincant, pokemon) == -1:
+            delay_print(f"\nYou paid ${money}.\n")
 

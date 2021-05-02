@@ -1,14 +1,16 @@
 import math
 import random
+import re
+
 import requests
 import json
 
-from pokemon.moves import Moves
+from pokemon.moves import Moves, create_mov
 
 
 class Pokemon:
 
-    def __init__(self, name, types, moves, hp, attack, defense, speed, strengths, weaknesses):
+    def __init__(self, name, types, moves, hp, attack, defense, speed, strengths, weaknesses, base_xp):
         # save variables as attributes
         self.name = name
         self.types = types
@@ -21,6 +23,7 @@ class Pokemon:
         self.speed = speed
         self.strengths = strengths
         self.weaknesses = weaknesses
+        self.base_xp = base_xp
 
     def get_name(self):
         return self.name
@@ -67,6 +70,9 @@ class Pokemon:
     def get_types(self):
         return self.types
 
+    def get_base_xp(self):
+        return self.base_xp
+
     # Attack pokemon function, where manages PP left, calculates damage,
     # crit chance, miss chance, and takes in count types advantages
 
@@ -83,7 +89,7 @@ def no_pp_left(move):
 
 
 def move_heals(move):
-    return "healing" in move.get_category()
+    return move.get_healing() > 0
 
 
 def waste_pp(move):
@@ -151,17 +157,23 @@ def get_weaknessses_and_strengths(pokemon):
     return [types, strengths, weaknesses]
 
 
+# and len(pokemon['moves']) > 4
+
 def generate_moves(pokemon):
     moves = []
+
     for i in range(4):
         for k in range(len(pokemon['moves'])):
-            rand = random.randrange(len(pokemon['moves']))
-            if pokemon['moves'][rand]['move']['name'] not in moves:
-                new_move = Moves.create_mov(pokemon, rand)
-                moves.append(new_move)
-                break
+            generate_move(pokemon, moves)
+            break
 
     return moves
+
+def generate_move(pokemon, moves):
+    rand = random.randrange(len(pokemon['moves']))
+    new_move = create_mov(pokemon, rand)
+    moves.append(new_move)
+
 
 
 def set_stats(pokemon):
@@ -177,11 +189,16 @@ def create_user_pokemon():
     pokemon_input = ask_pokemon()
     return create_pokemon(pokemon_input)
 
+def pokemon_has_no_moves(pokemon):
+    return len((pokemon['moves'])) < 1
 
 def create_pokemon(pokemon_required):
 
     # Get API data for the pokemon
     pokemon = get_pokemon_data(pokemon_required)
+
+    if pokemon_has_no_moves(pokemon):
+        return create_pokemon(random.randint(0, 898))
 
     # Start getting wanted data
     name = pokemon['name'].capitalize()
@@ -195,4 +212,6 @@ def create_pokemon(pokemon_required):
     # gets return of stats as an array
     [hp, attack, defense, speed] = set_stats(pokemon)
 
-    return Pokemon(name, types, moves, hp, attack, defense, speed, strengths, weaknesses)
+    base_xp = pokemon['base_experience']
+
+    return Pokemon(name, types, moves, hp, attack, defense, speed, strengths, weaknesses, base_xp)
