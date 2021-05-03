@@ -2,7 +2,7 @@ import sys
 import time
 import numpy as np
 import IA
-
+from selectmenu import SelectMenu
 from pokemon.Pokemon import *
 
 
@@ -69,15 +69,20 @@ def print_health(pokemon, contrincant):
 
 
 def print_moves(pokemon):
-    print(f"Go {pokemon.get_name()}!")
-    print(f'\n{moves_name_and_pp(pokemon)}\n')
+    #print(f"Go {pokemon.get_name()}!")
+    #print(f'\n{moves_name_and_pp(pokemon)}\n')
+    menu = SelectMenu()
+    menu.add_choices(moves_name_and_pp(pokemon))
+    print(menu.select("eyo"))
+    return menu.select("Pick a move")
+
 
 
 def moves_name_and_pp(pokemon):
-    moves = ''
+    moves = []
 
     for i in range(len(pokemon.moves)):
-        moves += f"[{pokemon.get_moves()[i].get_name()}][{print_in_color_on_low_pp(pokemon.get_moves()[i])} PP] \t"
+        moves.append(f"[{pokemon.get_moves()[i].get_name()}][{print_in_color_on_low_pp(pokemon.get_moves()[i])} PP] \t")
 
     return moves
 
@@ -105,8 +110,7 @@ def move_in_yellow(move):
 
 
 def ask_move(pokemon):
-    print_moves(pokemon)
-    return int(input('Pick a move: '))
+    return print_moves(pokemon)
 
 
 def calculate_move_effectiveness(move, contrincant):
@@ -154,8 +158,12 @@ def do_attack(pokemon, move, contrincant):
 
 # Allow two pokemon to fight each other
 def user_turn(pokemon, contrincant):
-    index = ask_move(pokemon)
-    move = pokemon.get_moves()[index - 1]
+    for i in range(len(pokemon.get_moves())):
+        current_move = ask_move(pokemon)
+        if current_move in pokemon.get_moves()[i].get_name():
+            move = current_move
+
+    #move = pokemon.get_moves()[index - 1]
 
     while no_pp_left(move):
         print(f"\n{bcolors.WARNING}No PP left!{bcolors.ENDC}")

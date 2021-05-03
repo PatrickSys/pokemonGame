@@ -2,8 +2,8 @@ import json
 import random
 
 import requests
-
 moves_learnt = []
+
 
 
 class Moves:
@@ -59,6 +59,8 @@ def pokemon_can_learn_less_than_4_moves(pokemon):
 
 
 def create_mov(pokemon, rand):
+
+
     move = requests.get(pokemon['moves'][rand]['move']['url'])
     mov = json.loads(move.text)
 
