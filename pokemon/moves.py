@@ -58,6 +58,7 @@ def pokemon_can_learn_less_than_4_moves(pokemon):
     return len(pokemon['moves']) < 4
 
 
+# Appends data from the API to an object of move
 def create_mov(pokemon, rand):
 
 

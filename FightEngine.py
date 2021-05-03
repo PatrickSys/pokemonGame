@@ -2,7 +2,7 @@ import sys
 import time
 import numpy as np
 import IA
-from selectmenu import SelectMenu
+
 from pokemon.Pokemon import *
 
 
@@ -63,26 +63,21 @@ def delay_print(s):
 
 def print_health(pokemon, contrincant):
     print(f"\n{pokemon.get_name()}", f"HEALTH\t{bcolors.OKGREEN}{pokemon.get_health()}{bcolors.ENDC}".rjust(
-        60 - len(pokemon.get_name()) -20, ' '))
+        60 - len(pokemon.get_name()) - 20, ' '))
     print(f"{contrincant.get_name()}", f"HEALTH\t{bcolors.OKGREEN}{contrincant.get_health()}{bcolors.ENDC}".rjust(
-        60 - len(contrincant.get_name()) -20, ' '), '\n')
+        60 - len(contrincant.get_name()) - 20, ' '), '\n')
 
 
 def print_moves(pokemon):
-    #print(f"Go {pokemon.get_name()}!")
-    #print(f'\n{moves_name_and_pp(pokemon)}\n')
-    menu = SelectMenu()
-    menu.add_choices(moves_name_and_pp(pokemon))
-    print(menu.select("eyo"))
-    return menu.select("Pick a move")
-
+    print(f"Go {pokemon.get_name()}!")
+    print(f'\n{moves_name_and_pp(pokemon)}\n')
 
 
 def moves_name_and_pp(pokemon):
-    moves = []
+    moves = ''
 
     for i in range(len(pokemon.moves)):
-        moves.append(f"[{pokemon.get_moves()[i].get_name()}][{print_in_color_on_low_pp(pokemon.get_moves()[i])} PP] \t")
+        moves += f"{i+1}:[{pokemon.get_moves()[i].get_name()}][{print_in_color_on_low_pp(pokemon.get_moves()[i])} PP] \t"
 
     return moves
 
@@ -110,7 +105,17 @@ def move_in_yellow(move):
 
 
 def ask_move(pokemon):
-    return print_moves(pokemon)
+    print_moves(pokemon)
+    try:
+        return int(input('Pick a move: '))
+
+    except:
+        print_select_correct_move()
+        return ask_move(pokemon)
+
+
+def print_select_correct_move():
+    print(f"{bcolors.WARNING}Please select a move{bcolors.ENDC}")
 
 
 def calculate_move_effectiveness(move, contrincant):
@@ -126,20 +131,23 @@ def calculate_move_effectiveness(move, contrincant):
     return modifier
 
 
-def do_attack(pokemon, move, contrincant):
+# Damage calculation based on crit chance per formula
+def calculate_damage(pokemon, move, contrincant):
+    return abs(move_crits() * ((pokemon.get_attack() * move.power * 50) - (
+            (contrincant.hp / 4.5) * (contrincant.defense * 35)))) / 72500
 
+
+def do_attack(pokemon, move, contrincant):
     waste_pp(move)
 
     if move_heals(move):
-        pokemon.set_bars(pokemon.get_bars() + move.get_healing()/15)
+        pokemon.set_bars(pokemon.get_bars() + move.get_healing() / 15)
         pokemon.set_health(pokemon.convert_bars_to_health())
 
     if move_doesnt_miss(move):
-        crit = move_crits()
 
         # damage calculation
-        damage = abs(crit * ((pokemon.get_attack() * move.power * 50) - (
-                (contrincant.hp / 4.5) * (contrincant.defense * 35)))) / 72500
+        damage = calculate_damage(pokemon, move, contrincant)
 
         # calculates move damage multiplier based on efectiveness
         damage_modifier = calculate_move_effectiveness(move, contrincant)
@@ -158,23 +166,24 @@ def do_attack(pokemon, move, contrincant):
 
 # Allow two pokemon to fight each other
 def user_turn(pokemon, contrincant):
-    for i in range(len(pokemon.get_moves())):
-        current_move = ask_move(pokemon)
-        if current_move in pokemon.get_moves()[i].get_name():
-            move = current_move
+    index = ask_move(pokemon)
 
-    #move = pokemon.get_moves()[index - 1]
+    try:
+        move = pokemon.get_moves()[index - 1]
+    except:
+        print_select_correct_move()
+        return user_turn(pokemon, contrincant)
 
     while no_pp_left(move):
         print(f"\n{bcolors.WARNING}No PP left!{bcolors.ENDC}")
         index = ask_move(pokemon)
         move = pokemon.get_moves()[index - 1]
-    return turn(pokemon,move,contrincant)
+    return turn(pokemon, move, contrincant)
 
 
 def turn(pokemon, move, contrincant):
     delay_print(f"\n{pokemon.get_name()} used {move.get_name()}!")
-    time.sleep(.1)
+    time.sleep(1)
 
     # Determine damage
     do_attack(pokemon, move, contrincant)
@@ -192,17 +201,14 @@ def ia_is_faster_than_pokemon(pokemon, ia):
 
 
 def fight(pokemon, contrincant):
-
     print_header(pokemon, contrincant)
 
+    # Turns depending on which pokemon is faster
 
-    # Continue while pokemon still have health
     if ia_is_faster_than_pokemon(pokemon, contrincant):
         ia_attacks_first(pokemon, contrincant)
     else:
         attack_turns(pokemon, contrincant)
-
-
 
 
 def ia_attacks_first(pokemon, contrincant):
@@ -220,11 +226,6 @@ def ia_attacks_first(pokemon, contrincant):
             delay_print(f"\nOpponent paid you ${money}.\n")
 
 
-
-
-
-
-
 def attack_turns(pokemon, contrincant):
     money = np.random.choice(5000)
     while pokemon.is_not_dead() and contrincant.is_not_dead():
@@ -238,4 +239,3 @@ def attack_turns(pokemon, contrincant):
 
         if IA.ia_turn(contrincant, pokemon) == -1:
             delay_print(f"\nYou paid ${money}.\n")
-

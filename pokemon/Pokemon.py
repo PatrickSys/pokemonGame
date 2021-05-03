@@ -169,6 +169,7 @@ def generate_moves(pokemon):
 
     return moves
 
+# Generates random moves for the pokemon given
 def generate_move(pokemon, moves):
     rand = random.randrange(len(pokemon['moves']))
     new_move = create_mov(pokemon, rand)
